@@ -73,6 +73,28 @@ class JSONEncoderTests: XCTestCase {
     }
   }
   
+  func testEncodeDoubleNAN() {
+    do {
+      let result = try PureSwiftJSONCoding.JSONEncoder().encode(Double.nan)
+      XCTFail("Did not expect to have a result: \(result)")
+    }
+    catch {
+      // missing expected catch
+      XCTFail("Unexpected error: \(error)")
+    }
+  }
+  
+  func testEncodeDoubleInf() {
+    do {
+      let result = try PureSwiftJSONCoding.JSONEncoder().encode(Double.infinity)
+      XCTFail("Did not expect to have a result: \(result)")
+    }
+    catch {
+      // missing expected catch
+       XCTFail("Unexpected error: \(error)")
+    }
+  }
+  
   func testEncodeQuote() {
     do {
       let result = try PureSwiftJSONCoding.JSONEncoder().encode("\"")
