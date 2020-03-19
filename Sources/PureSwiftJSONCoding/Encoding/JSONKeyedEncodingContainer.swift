@@ -89,6 +89,7 @@ struct JSONKeyedEncodingContainer<K: CodingKey>: KeyedEncodingContainerProtocol 
   mutating func nestedContainer<NestedKey>(keyedBy keyType: NestedKey.Type, forKey key: Self.Key) ->
     KeyedEncodingContainer<NestedKey> where NestedKey : CodingKey
   {
+    let newPath    = impl.codingPath + [key]
     return impl.nestedContainer(keyedBy: keyType, forKey: key)
   }
 

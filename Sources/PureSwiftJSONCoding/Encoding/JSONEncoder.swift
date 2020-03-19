@@ -1,29 +1,62 @@
 import PureSwiftJSONParsing
 
+enum JSONFuture {
+  case value(JSONValue)
+  case nestedArray(JSONArray)
+  case nestedObject(JSONObject)
+}
+
 class JSONArray {
   
-  private(set) var array: [JSONValue] = []
+  private(set) var array: [JSONFuture] = []
   
   init() {
     array.reserveCapacity(10)
   }
   
   @inline(__always) func append(_ element: JSONValue) {
-    self.array.append(element)
+    self.array.append(.value(element))
+  }
+  
+  var values: [JSONValue] {
+    self.array.map { (future) -> JSONValue in
+      switch future {
+      case .value(let value):
+        return value
+      case .nestedArray(_):
+        preconditionFailure("unimplemented")
+      case .nestedObject(_):
+        preconditionFailure("unimplemented")
+      }
+    }
   }
 }
 
 class JSONObject {
   
-  private(set) var dict: [String: JSONValue] = [:]
+  private(set) var dict: [String: JSONFuture] = [:]
   
   init() {
     dict.reserveCapacity(20)
   }
   
   @inline(__always) func set(_ value: JSONValue, for key: String) {
-    self.dict[key] = value
+    self.dict[key] = .value(value)
   }
+  
+  var values: [String: JSONValue] {
+    self.dict.mapValues { (future) -> JSONValue in
+      switch future {
+      case .value(let value):
+        return value
+      case .nestedArray(_):
+        preconditionFailure("unimplemented")
+      case .nestedObject(_):
+        preconditionFailure("unimplemented")
+      }
+    }
+  }
+
 }
 
 public class JSONEncoder {
@@ -62,17 +95,17 @@ class JSONEncoderImpl {
   
   var value: JSONValue? {
     if let object = self.object {
-      return .object(object.dict)
+      return .object(object.values)
     }
     if let array = self.array {
-      return .array(array.array)
+      return .array(array.values)
     }
     return self.singleValue
   }
   
   init(userInfo: [CodingUserInfoKey : Any], codingPath : [CodingKey]) {
     self.userInfo   = userInfo
-    self.codingPath = []
+    self.codingPath = codingPath
   }
 
 }
